@@ -1,0 +1,13 @@
+name = "PendulumControlDemo"
+uuid = "ed095e20-b536-4b1b-9bd3-7753e9f74543"
+authors = ["Clara Hobbs"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
