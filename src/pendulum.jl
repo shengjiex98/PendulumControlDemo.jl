@@ -21,11 +21,11 @@ function pendulum_run()
 
     try
         w, h = w_ref[], h_ref[]
-        x = (1000 - w) ÷ 2
-        y = (1000 - h) ÷ 2
-        dest_ref = Ref(SDL_Rect(x, y, w, h))
+        pos = [(1000 - w) ÷ 2, (1000 - h) ÷ 2]
+        dest_ref = Ref(SDL_Rect(pos..., w, h))
         close = false
         speed = 300
+        dirs = [0, 0]
         while !close
             event_ref = Ref{SDL_Event}()
             while Bool(SDL_PollEvent(event_ref))
@@ -36,16 +36,33 @@ function pendulum_run()
                 elseif evt.type == SDL_KEYDOWN
                     scan_code = evt.key.keysym.scancode
                     if scan_code == SDL_SCANCODE_W || scan_code == SDL_SCANCODE_UP
-                        y -= speed / 30
+                        dirs[2] -= 1
                         break
                     elseif scan_code == SDL_SCANCODE_A || scan_code == SDL_SCANCODE_LEFT
-                        x -= speed / 30
+                        dirs[1] -= 1
                         break
                     elseif scan_code == SDL_SCANCODE_S || scan_code == SDL_SCANCODE_DOWN
-                        y += speed / 30
+                        dirs[2] += 1
                         break
                     elseif scan_code == SDL_SCANCODE_D || scan_code == SDL_SCANCODE_RIGHT
-                        x += speed / 30
+                        dirs[1] += 1
+                        break
+                    else
+                        break
+                    end
+                elseif evt.type == SDL_KEYUP
+                    scan_code = evt.key.keysym.scancode
+                    if scan_code == SDL_SCANCODE_W || scan_code == SDL_SCANCODE_UP
+                        dirs[2] += 1
+                        break
+                    elseif scan_code == SDL_SCANCODE_A || scan_code == SDL_SCANCODE_LEFT
+                        dirs[1] += 1
+                        break
+                    elseif scan_code == SDL_SCANCODE_S || scan_code == SDL_SCANCODE_DOWN
+                        dirs[2] -= 1
+                        break
+                    elseif scan_code == SDL_SCANCODE_D || scan_code == SDL_SCANCODE_RIGHT
+                        dirs[1] -= 1
                         break
                     else
                         break
@@ -53,16 +70,17 @@ function pendulum_run()
                 end
             end
 
-            x + w > 1000 && (x = 1000 - w;)
-            x < 0 && (x = 0;)
-            y + h > 1000 && (y = 1000 - h;)
-            y < 0 && (y = 0;)
+            dirs = max.(dirs, [-1, -1])
+            dirs = min.(dirs, [1, 1])
+            pos += speed / 30 * dirs
+            pos = max.(pos, [0, 0])
+            pos = min.(pos, [1000 - w, 1000 - h])
 
-            dest_ref[] = SDL_Rect(x, y, w, h)
+            dest_ref[] = SDL_Rect(pos..., w, h)
             SDL_RenderClear(renderer)
             SDL_RenderCopy(renderer, tex, C_NULL, dest_ref)
             dest = dest_ref[]
-            x, y, w, h = dest.x, dest.y, dest.w, dest.h
+            pos[1], pos[2], w, h = dest.x, dest.y, dest.w, dest.h
             SDL_RenderPresent(renderer)
 
             SDL_Delay(1000 ÷ 60)
