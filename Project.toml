@@ -3,6 +3,9 @@ uuid = "ed095e20-b536-4b1b-9bd3-7753e9f74543"
 authors = ["Clara Hobbs"]
 version = "0.1.0"
 
+[deps]
+SimpleDirectMediaLayer = "98e33af6-2ee5-5afd-9e75-cbc738b767c4"
+
 [compat]
 julia = "1"
 
