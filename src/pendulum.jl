@@ -37,7 +37,7 @@ function draw_pendulum!(ax::Axis)
     points = @lift([Point2f(0, 0), $pend])
 
     lines!(ax, points)
-    poly!(ax, @lift(Circle($pend, 0.1)))
+    scatter!(ax, pend, marker=:circle, markersize=0.2, markerspace=:data)
 
     θ
 end
