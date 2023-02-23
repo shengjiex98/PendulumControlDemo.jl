@@ -1,3 +1,4 @@
+using Printf
 using GLMakie
 
 """
@@ -10,22 +11,36 @@ function pendulum_run(;fps=60)
     ax = Axis(fig[1, 1], aspect=1)
     limits!(ax, [-1.5, 1.5], [-1.5, 1.5])
 
-    x = Observable([0.0, 0.0])
+    x = Observable([π - 0.1, 0.0])
     θ = draw_pendulum!(ax, x)
+
+    u = Observable(0.0)
+    tooltip!(ax, 0, 0, @lift(@sprintf("Torque: %.3f", $u)), placement=:below)
 
     sl = Slider(fig[2, 1], range=-1:0.01:1, startvalue=0)
 
+    m = 3
+    l = 1
+    g = 9.81
+    b = 1
+    #K = [-0.0941782  3.19134]
+    K = [57  18]
+
     on(events(fig.scene).window_open) do event
         event || return
+        frame = 0
         @async while isopen(fig.scene)
-            mr = 3; l = .19; g = 9.81; ; b = 0.1;
-            I = 4/3*mr*l^2; 
-            dx = [0.0; 0.0]
-            dx[1] = x[][2];
-            u = sl.value[]
-            dx[2] = (u - mr * g * l * sin(x[][1]) - b * x[][2] ) / (I + mr * l^2);
+            w = -10 * sl.value[]
+            if frame % 6 == 0
+                u[] = clamp((K * (x[] - [π, 0]))[1], -10, 10)
+            end
+
+            dx = [x[][2];
+                  (w - u[] - m * g * l * sin(x[][1]) - b * x[][2] ) / (m * l^2)]
             x[] = x[] + dx * 1/fps
+
             sleep(1/fps)
+            frame += 1
         end
     end
 
