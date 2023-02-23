@@ -12,6 +12,16 @@ From the Julia REPL, run:
 using Pkg; Pkg.add(url="https://github.com/Ratfink/PendulumControlDemo.jl")
 ```
 
+The demo currently requires a development branch of Makie, found in the
+`joystick` branch of [this repository](https://github.com/Ratfink/Makie.jl).
+This branch enables work-in-progress joystick support.  After cloning the
+repository, you can enable it in Julia with:
+
+```julia
+Pkg.develop(path="path/to/Makie.jl")
+Pkg.develop(path="path/to/Makie.jl/GLMakie")
+```
+
 ## Usage
 
 Enter the project directory, located at `~/.julia/dev/PendulumControlDemo` on
