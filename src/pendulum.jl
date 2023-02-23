@@ -29,6 +29,12 @@ function pendulum_run(;fps=60)
         end
     end
 
+    on(events(fig.scene).joystickaxes[2]) do event
+        if event !== nothing
+            set_close_to!(sl, event[1])
+        end
+    end
+
     fig
 end
 
