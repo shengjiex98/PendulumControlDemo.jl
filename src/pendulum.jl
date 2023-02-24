@@ -32,7 +32,8 @@ function pendulum_run(;fps=60)
         @async while isopen(fig.scene)
             w = -10 * sl.value[]
             if frame % 6 == 0
-                u[] = clamp((K * (x[] - [π, 0]))[1], -10, 10)
+                xround = [rem(x[][1], 2π, RoundDown) - π, x[][2]]
+                u[] = clamp((K * xround)[1], -10, 10)
             end
 
             dx = [x[][2];
