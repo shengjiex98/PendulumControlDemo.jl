@@ -12,12 +12,14 @@ function pendulum_run(;fps=60)
     limits!(ax, [-1.5, 1.5], [-1.5, 1.5])
 
     x = Observable([π - 0.1, 0.0])
-    θ = draw_pendulum!(ax, x)
-
     u = Observable(0.0)
-    tooltip!(ax, 0, 0, @lift(@sprintf("Torque: %.3f Nm", $u)), placement=:below)
 
     sl = Slider(fig[2, 1], range=-1:0.01:1, startvalue=0, tellwidth=false)
+
+    θ = draw_pendulum!(ax, x, u, sl.value)
+    fig[1, 2] = Legend(fig, ax, valign=:top)
+
+    tooltip!(ax, 0, 0, @lift(@sprintf("Torque: %.3f Nm", $u)), placement=:below)
 
     sg = SliderGrid(fig[1, 2],
                     (label = "Max Torque", range = 0:5:30, format = "{} Nm", startvalue = 10),
@@ -71,13 +73,23 @@ end
 Draw a unit length pendulum on the given axis.  Returns θ, the angle of the pendulum from
 vertical.
 """
-function draw_pendulum!(ax::Axis, x)
+function draw_pendulum!(ax::Axis, x, u, w)
     θ = @lift($x[1])
     pend = @lift(Point2f(sin($θ), -cos($θ)))
     points = @lift([Point2f(0, 0), $pend])
 
+    # Pendulum
     lines!(ax, points)
     scatter!(ax, pend, marker=:circle, markersize=0.2, markerspace=:data)
+
+    # Forces
+    arrow_root = @lift([$pend])
+    # Gravity
+    arrows!(ax, arrow_root, [Point2f(0, -0.981)], label="Gravity", color=:orange)
+    # Torque from controller
+    arrows!(ax, arrow_root, @lift([Point2f(-cos($θ) * 0.1*$u, -sin($θ) * 0.1*$u)]), label="Controller torque", color=:green)
+    # Torque from disturbance
+    arrows!(ax, arrow_root, @lift([Point2f(-cos($θ) * $w, -sin($θ) * $w)]), label="Disturbance torque", color=:purple)
 
     θ
 end
