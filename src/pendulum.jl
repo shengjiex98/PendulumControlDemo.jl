@@ -15,25 +15,36 @@ function pendulum_run(;fps=60)
     θ = draw_pendulum!(ax, x)
 
     u = Observable(0.0)
-    tooltip!(ax, 0, 0, @lift(@sprintf("Torque: %.3f", $u)), placement=:below)
+    tooltip!(ax, 0, 0, @lift(@sprintf("Torque: %.3f Nm", $u)), placement=:below)
 
-    sl = Slider(fig[2, 1], range=-1:0.01:1, startvalue=0)
+    sl = Slider(fig[2, 1], range=-1:0.01:1, startvalue=0, tellwidth=false)
+
+    sg = SliderGrid(fig[1, 2],
+                    (label = "Max Torque", range = 0:5:30, format = "{} Nm", startvalue = 10),
+                    (label = "Derivative", range = 0:5:20, startvalue = 15),
+                    (label = "Control Rate", range = 1:20, format = "{}/60 s", startvalue=6),
+                    width=300,
+                    tellheight=false
+    )
+    τ_max = sg.sliders[1].value
+    K_D = sg.sliders[2].value
+    delay = sg.sliders[3].value
 
     m = 3
     l = 1
     g = 9.81
-    b = 1
+    b = 0.1
     #K = [-0.0941782  3.19134]
-    K = [57  18]
+    K = @lift([57  $K_D])
 
     on(events(fig.scene).window_open) do event
         event || return
         frame = 0
         @async while isopen(fig.scene)
             w = -10 * sl.value[]
-            if frame % 6 == 0
+            if frame % delay[] == 0
                 xround = [rem(x[][1], 2π, RoundDown) - π, x[][2]]
-                u[] = clamp((K * xround)[1], -10, 10)
+                u[] = clamp((K[] * xround)[1], -τ_max[], τ_max[])
             end
 
             dx = [x[][2];
