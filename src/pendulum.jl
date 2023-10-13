@@ -1,5 +1,7 @@
 using Printf
 using GLMakie
+using FileIO
+using Assets
 
 """
     pendulum_run(;fps=60)
@@ -16,17 +18,20 @@ function pendulum_run(;fps=60)
     ax = Axis(fig[1, 1], aspect=1)
     limits!(ax, [-1.5, 1.5], [-1.5, 1.5])
 
+    img = load("assets/feedback_control.png")
+    image(fig[1, 2][3, 1], img', axis = (aspect = DataAspect(), yreversed = true, xticksvisible = false, xticklabelsvisible = false, xgridvisible = false, yticksvisible = false, yticklabelsvisible = false, ygridvisible = false, leftspinevisible=false, rightspinevisible=false, topspinevisible=false, bottomspinevisible=false))
+
     x = Observable([π - 0.1, 0.0])
     u = Observable(0.0)
     sl = Slider(fig[2, 1], range=-1:0.01:1, startvalue=0, tellwidth=false)
     w = @lift(-10 * $(sl.value))
 
     θ = draw_pendulum!(ax, x, u, w, m*l*g, b)
-    fig[1, 2] = Legend(fig, ax, valign=:top)
+    fig[1, 2][1, 1] = Legend(fig, ax, valign=:top)
 
-    sg = SliderGrid(fig[1, 2],
+    sg = SliderGrid(fig[1, 2][2, 1],
                     (label = "Max Torque", range = 0:5:30, format = "{} Nm", startvalue = 10),
-                    (label = "Gain K", range = 0:5:20, startvalue = 5),
+                    (label = "Gain K_D", range = 0:5:20, startvalue = 5),
                     (label = "Control Period", range = 1:20, format = "{}/60 s", startvalue=6),
                     width=300,
                     tellheight=false
@@ -56,9 +61,9 @@ function pendulum_run(;fps=60)
         end
     end
 
-    on(events(fig.scene).joystickaxes[2]) do event
+    on(events(fig.scene).joystickaxes[1]) do event
         if event !== nothing
-            set_close_to!(sl, event[1])
+            set_close_to!(sl, 10*event[1])
         end
     end
 
@@ -79,6 +84,9 @@ function draw_pendulum!(ax::Axis, x, u, w, grav, b)
     # Pendulum
     lines!(ax, points, color=:black)
     scatter!(ax, pend, marker=:circle, markersize=0.2, markerspace=:data, color=:black)
+    # Motor
+    scatter!(ax, Point2f(0, 0), marker=:circle, markersize=0.2, markerspace=:data, color=:white)
+    scatter!(ax, Point2f(0, 0), marker='Ⓜ', markersize=0.2, markerspace=:data, color=:black)
 
     # Forces
     arrow_root = @lift([$pend])
