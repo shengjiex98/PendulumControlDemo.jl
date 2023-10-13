@@ -31,17 +31,19 @@ function pendulum_run(;fps=60)
 
     sg = SliderGrid(fig[1, 2][2, 1],
                     (label = "Max Torque", range = 0:5:30, format = "{} Nm", startvalue = 10),
-                    (label = "Gain K_D", range = 0:5:20, startvalue = 5),
+                    (label = "Gain K_P", range = 0:10:100, startvalue = 60),
+                    (label = "Gain K_D", range = 0:2.5:20, startvalue = 5),
                     (label = "Control Period", range = 1:20, format = "{}/60 s", startvalue=6),
                     width=300,
                     tellheight=false
     )
     τ_max = sg.sliders[1].value
-    K_D = sg.sliders[2].value
-    delay = sg.sliders[3].value
+    K_P = sg.sliders[2].value
+    K_D = sg.sliders[3].value
+    delay = sg.sliders[4].value
 
     #K = [-0.0941782  3.19134]
-    K = @lift([57  $K_D])
+    K = @lift([$K_P  $K_D])
 
     on(events(fig.scene).window_open) do event
         event || return
