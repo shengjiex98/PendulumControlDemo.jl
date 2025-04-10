@@ -1,0 +1,4 @@
+[submodule "Makie.jl"]
+	path = Makie.jl
+	url = https://github.com/Ratfink/Makie.jl/
+	branch = joystick
