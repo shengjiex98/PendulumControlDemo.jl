@@ -11,7 +11,7 @@ This demo requires Julia 1.9. Install it with
 juliaup add 1.9
 ```
 
-Then, clone the repository with `git clone --recurse-submodules`. e.g.,
+Then, clone this repository with `git clone --recurse-submodules`. e.g.,
 ```bash
 git clone --recurse-submodules https://github.com/shengjiex98/PendulumControlDemo.jl.git
 ```
@@ -19,8 +19,9 @@ This will automatically clone a development branch of Makie, found in the
 `joystick` branch of [this repository](https://github.com/Ratfink/Makie.jl).
 This branch enables work-in-progress joystick support.
 
-Finally, start julia in the project folder:
+Finally, start julia within the project folder:
 ```bash
+cd PendulumControlDemo.jl
 julia +1.9 --project=.
 ```
 
@@ -36,6 +37,7 @@ Pkg.precompile()
 
 Start julia in the project folder:
 ```bash
+# In the PendulumControlDemo.jl folder
 julia +1.9 --project=.
 ```
 
